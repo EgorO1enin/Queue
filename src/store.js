@@ -1,5 +1,10 @@
-import { Redis } from "@upstash/redis/fastly";
+import { Redis } from '@upstash/redis';
+const redis = new Redis({
+  url: 'https://coherent-pelican-37324.upstash.io',
+  token: '********',
+})
 
+const data = await redis.set('foo', 'bar');
 // The name of the backend providing the Upstash Redis service.
 const UPSTASH_BACKEND = "upstash";
 

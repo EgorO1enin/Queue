@@ -2,9 +2,22 @@
 которая загружает конфигурационные параметры для приложения. Давайте разберем его по частям.*/
 import { ConfigStore } from "fastly:config-store";
 
+
+// Инициализация Fastly Compute
+fastly.initialize({
+  serviceId: 'SERVICE_ID',
+  accessToken: 'ACCESS_TOKEN'
+}); // Инициализация Fastly Compute. Подключение к сервису. Получение токена доступа.
+
+// Регистрация обработчика события fetch
+fastly.addEventListener('fetch', (event) => {
+  // Обработка события fetch здесь
+});
+
+
+
 /*Здесь происходит импорт класса ConfigStore из библиотеки Fastly,
 который используется для работы с конфигурационными данными.*/
-
 function fetchConfig() {
   let dict = new ConfigStore("config");
 
