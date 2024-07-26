@@ -1,7 +1,7 @@
 //! Compute queuing starter kit.
 
 /// <reference types="@fastly/js-compute" />
-
+//import { initialize } from '@fastly/wasm-compute';
 import { includeBytes } from "fastly:experimental";
 import * as jws from "jws";
 
@@ -51,10 +51,10 @@ addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
 // Handle an incoming request.
 async function handleRequest(event) {
   // Get the client request and parse the URL.
+  // Metadata foe developer.fastly.com.
   const { request, client } = event;
   const url = new URL(request.url);
-
-  // Metadata foe developer.fastly.com.
+  //const { wizer } = await initialize(); // Initialize the compute client
   // Feel free to delete this.
   if (url.pathname == "/.well-known/fastly/demo-manifest") {
     return new Response(demoManifest, {

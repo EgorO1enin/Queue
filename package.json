@@ -6,7 +6,8 @@
   "dependencies": {
     "@fastly/js-compute": "^3.0.0",
     "@upstash/redis": "^1.33.0",
-    "jws": "^4.0.0"
+    "jws": "^4.0.0",
+    "@fastly/wasm-compute": "^1.0.0"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
