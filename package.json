@@ -6,7 +6,8 @@
   "dependencies": {
     "@fastly/js-compute": "^3.0.0",
     "@upstash/redis": "^1.33.0",
-    "jws": "^4.0.0"
+    "jws": "^4.0.0",
+    "@fastly/wasm-compute": "^1.0.0"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
@@ -28,7 +29,7 @@
   "scripts": {
     "prebuild": "webpack",
     "build": "js-compute-runtime bin/index.js bin/main.wasm",
-    "deploy": "fastly compute publish"
+    "deploy": "fastly compute serve"
   },
   "version": "1.0.0-pre"
 }

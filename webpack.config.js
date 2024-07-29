@@ -18,6 +18,8 @@ module.exports = {
     // rules: [
     // ],
   },
+  mode: 'production',
+
   plugins: [
     // Polyfills go here.
     // Used for, e.g., any cross-platform WHATWG,
