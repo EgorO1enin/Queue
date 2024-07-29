@@ -1,11 +1,12 @@
 //! Compute queuing starter kit.
 
 /// <reference types="@fastly/js-compute" />
-//import { initialize } from '@fastly/wasm-compute';
+
 import { includeBytes } from "fastly:experimental";
 import * as jws from "jws";
 
 import fetchConfig from "./config";
+const { wizer } = await initialize();
 
 import { getQueueCookie, setQueueCookie } from "./cookies";
 
@@ -51,10 +52,10 @@ addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
 // Handle an incoming request.
 async function handleRequest(event) {
   // Get the client request and parse the URL.
-  // Metadata foe developer.fastly.com.
   const { request, client } = event;
   const url = new URL(request.url);
-  //const { wizer } = await initialize(); // Initialize the compute client
+
+  // Metadata foe developer.fastly.com.
   // Feel free to delete this.
   if (url.pathname == "/.well-known/fastly/demo-manifest") {
     return new Response(demoManifest, {
@@ -102,14 +103,14 @@ async function handleRequest(event) {
   try {
     // Decode the JWT signature to get the visitor's position in the queue.
     payload =
-      cookie &&
-      JSON.parse(jws.decode(cookie, "HS256", config.jwtSecret).payload);
+        cookie &&
+        JSON.parse(jws.decode(cookie, "HS256", config.jwtSecret).payload);
 
     // If the queue cookie is set, verify that it is valid.
     isValid =
-      payload &&
-      jws.verify(cookie, "HS256", config.jwtSecret) &&
-      new Date(payload.expiry) > Date.now();
+        payload &&
+        jws.verify(cookie, "HS256", config.jwtSecret) &&
+        new Date(payload.expiry) > Date.now();
   } catch (e) {
     console.error(`Error while validating cookie: ${e}`);
   }
@@ -127,8 +128,8 @@ async function handleRequest(event) {
     // Add a new visitor to the end of the queue.
     // If demo padding is set in the config, the queue will grow by that amount.
     visitorPosition = await incrementQueueLength(
-      redis,
-      config.queue.demoPadding ? config.queue.demoPadding : 1
+        redis,
+        config.queue.demoPadding ? config.queue.demoPadding : 1
     );
 
     // Sign a JWT with the visitor's position.
@@ -154,8 +155,8 @@ async function handleRequest(event) {
 
         if (queueCursor < queueLength + config.queue.automaticQuantity) {
           queueCursor = await incrementQueueCursor(
-            redis,
-            config.queue.automaticQuantity
+              redis,
+              config.queue.automaticQuantity
           );
 
           if (visitorPosition < queueCursor) {
@@ -168,9 +169,9 @@ async function handleRequest(event) {
 
   if (!permitted) {
     response = await handleUnauthorizedRequest(
-      request,
-      config,
-      visitorPosition - queueCursor - 1
+        request,
+        config,
+        visitorPosition - queueCursor - 1
     );
   } else {
     response = await handleAuthorizedRequest(request);
@@ -183,15 +184,15 @@ async function handleRequest(event) {
 
   // Log the request and response.
   log(
-    fastly.getLogger(LOG_ENDPOINT),
-    request,
-    client,
-    permitted,
-    response.status,
-    {
-      queueCursor,
-      visitorPosition,
-    }
+      fastly.getLogger(LOG_ENDPOINT),
+      request,
+      client,
+      permitted,
+      response.status,
+      {
+        queueCursor,
+        visitorPosition,
+      }
   );
 
   return response;
@@ -208,26 +209,26 @@ async function handleAuthorizedRequest(req) {
 // Handle an incoming request that is not yet authorized to access protected content.
 async function handleUnauthorizedRequest(req, config, visitorsAhead) {
   return new Response(
-    processView(queueView, {
-      visitorsAhead: visitorsAhead.toLocaleString(),
-      visitorsVerb: visitorsAhead == 1 ? "is" : "are",
-      visitorsPlural: visitorsAhead == 1 ? "person" : "people",
-      refreshInterval: config.queue.refreshInterval,
-    }),
-    {
-      status: 401,
-      headers: {
-        "Content-Type": "text/html",
-      },
-    }
+      processView(queueView, {
+        visitorsAhead: visitorsAhead.toLocaleString(),
+        visitorsVerb: visitorsAhead == 1 ? "is" : "are",
+        visitorsPlural: visitorsAhead == 1 ? "person" : "people",
+        refreshInterval: config.queue.refreshInterval,
+      }),
+      {
+        status: 401,
+        headers: {
+          "Content-Type": "text/html",
+        },
+      }
   );
 }
 
 // Handle an incoming request to an admin-related endpoint.
 async function handleAdminRequest(req, path, config, redis) {
   if (
-    config.admin.password &&
-    req.headers.get("Authorization") !=
+      config.admin.password &&
+      req.headers.get("Authorization") !=
       `Basic ${btoa(`admin:${config.admin.password}`)}`
   ) {
     return new Response(null, {
@@ -240,23 +241,23 @@ async function handleAdminRequest(req, path, config, redis) {
 
   if (path == config.admin.path) {
     let visitorsWaiting =
-      (await getQueueLength(redis)) - (await getQueueCursor(redis));
+        (await getQueueLength(redis)) - (await getQueueCursor(redis));
 
     return new Response(
-      processView(adminView, {
-        adminBase: config.admin.path,
-        visitorsWaiting,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html",
-        },
-      }
+        processView(adminView, {
+          adminBase: config.admin.path,
+          visitorsWaiting,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "text/html",
+          },
+        }
     );
   } else if (path == `${config.admin.path}/permit`) {
     let amt = parseInt(
-      new URL("http://127.0.0.1/?" + (await req.text())).searchParams.get("amt")
+        new URL("http://127.0.0.1/?" + (await req.text())).searchParams.get("amt")
     );
     await incrementQueueCursor(redis, amt || 1);
 
